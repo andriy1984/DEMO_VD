@@ -1,0 +1,12 @@
+balancer     ansible_connection=local
+
+database     ansible_ssh_host=192.168.22.200  ansible_ssh_private_key_file=/home/vagrant/machines/database.private_key     ansible_ssh_user=vagrant
+webserver1   ansible_ssh_host=192.168.22.201  ansible_ssh_private_key_file=/home/vagrant/machines/webserver1.private_key   ansible_ssh_user=vagrant
+webserver2   ansible_ssh_host=192.168.22.202  ansible_ssh_private_key_file=/home/vagrant/machines/webserver2.private_key   ansible_ssh_user=vagrant
+
+[webservers]
+webserver1
+webserver2
+
+[dbservers]
+database
