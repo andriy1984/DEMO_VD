@@ -1,0 +1,26 @@
+---
+
+- name: install apache and php into webservers
+  hosts: webservers
+  sudo: yes
+  roles:
+   - apache
+   - php
+
+- name: install postgesql into dbserver
+  hosts: dbserver
+  sudo: yes
+  roles:
+   - postgresql
+   
+- name: install moodle lms into webservers
+  hosts: webservers
+  sudo: yes
+  roles:
+   - moodle
+   
+- name: install haproxy into balancer server
+  hosts: balancer
+  sudo: yes
+  roles:
+   - haproxy
