@@ -1,0 +1,68 @@
+---
+- name: Install required python modules
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - libsemanage-python
+    - libselinux-python
+    - python-psycopg2
+    - libsemanage-python
+    
+- name: Install postgresql 10 repo
+  yum_repository:
+    name: postgresql
+    description: POSTGRESQL YUM repo
+    baseurl: https://yum.postgresql.org/10/redhat/rhel-7-x86_64/pgdg-centos10-10-2.noarch.rpm
+    
+- name: Install psql server
+  yum:
+    name: postgresql10-server
+    state: installed
+
+- name: Copy init_db.sh script to remote machine
+  copy:
+    src: init_db.sh
+    dest: /vagrant/init_db.sh
+    mode: 0700
+
+- name: Execute init_db.sh script
+  command: sh /vagrant/init_db.sh
+   
+- name: Enable and start service postgresql
+  service:
+    name: postgresql-10
+    enabled: yes
+    state: started
+
+- name: Configure db server
+  lineinfile:
+    path: /var/lib/pgsql/10/data/pg_hba.conf
+    line: "host all all 192.168.22.0/24 md5"
+
+- name: Connections for db
+  lineinfile:
+    path: /var/lib/pgsql/10/data/postgresql.conf
+    line: "listen_addresses = '*'"
+
+- name: Create db for Moodle in dbserver
+  become: true
+  become_user: postgres
+  postgresql_db:
+    name: moodledb
+    encoding: UTF-8
+
+- name: Create user for Moodle in dbserver
+  become: true
+  become_user: postgres
+  postgresql_user:
+    db: moodledb
+    name: moodleuser
+    password: m00dLe
+  notify: restart psql
+
+- name: Allow httpd connect to db
+  seboolean:
+    name: httpd_can_network_connect_db
+    state: yes
+    persistent: yes
