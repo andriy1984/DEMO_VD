@@ -1,0 +1,53 @@
+---
+- name: Install required python modules
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - libsemanage-python
+    - libselinux-python
+  notify: restart httpd
+
+- name: Download and extract moodle
+  unarchive:
+    src: https://download.moodle.org/download.php/direct/stable35/moodle-latest-35.tgz
+    dest: /var/www/html
+    remote_src: yes
+
+- name: Make apache owner of moodledata
+  file:
+    path: /var/moodledata
+    state: directory
+    owner: apache
+    group: apache
+    setype: httpd_sys_rw_content_t
+    
+- name: Allow httpd connect to network
+  seboolean:
+    name: httpd_can_network_connect
+    state: yes
+    persistent: yes
+  
+  notify: restart httpd
+
+- name: Copy moodle_install.sh script to remote machines
+  copy:
+    src: moodle_install.sh
+    dest: /vagrant/moodle_install.sh
+    mode: 0700
+
+- name: Execute moodle_install.sh script
+  command: sh /vagrant/moodle_install.sh
+
+- name: Deploy php config
+  template:
+    src: config.php.j2 
+    dest: /var/www/html/moodle/config.php
+    mode: "a+r"
+    
+- name: Setup cron for moodle
+  lineinfile:
+    path: /var/spool/cron/vagrant
+    line: "* * * * *    /usr/bin/php /var/www/html/moodle/admin/cli/cron.php >/dev/null"
+    create: yes
+  notify: restart httpd
