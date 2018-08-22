@@ -1,0 +1,13 @@
+---
+
+- name: Install haproxy
+  yum:
+    name: haproxy
+    state: latest
+  notify: enable haproxy
+
+- name: Deploy haproxy config
+  template:
+    src: haproxy.cfg.j2 
+    dest: /etc/haproxy/haproxy.cfg
+  notify: restart haproxy
