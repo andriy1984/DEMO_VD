@@ -3,9 +3,11 @@
   yum:
     name: httpd
     state: installed
+  tags: packages
 
 - name: Start and Enable httpd service
   service:
     name: httpd
     state: started
     enabled: yes
+  tags: packages

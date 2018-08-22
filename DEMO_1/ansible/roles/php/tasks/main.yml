@@ -4,9 +4,11 @@
   yum:
     name: http://rpms.remirepo.net/enterprise/remi-release-7.rpm
     state: present
+  tags: packages
 
 - name: Enabled php72 repo
   command: yum-config-manager --enable remi-php72
+  tags: configuration
 
 - name: Install epel and yum utils
   yum:
@@ -15,6 +17,7 @@
   with_items:
     - epel-release
     - yum-utils
+  tags: packages
 
 - name: Install php and php modules
   yum:
@@ -36,3 +39,4 @@
     - php-spl
     - php-pgsql
   notify: restart httpd
+  tags: packages

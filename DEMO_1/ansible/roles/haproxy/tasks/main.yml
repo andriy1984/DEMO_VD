@@ -5,9 +5,11 @@
     name: haproxy
     state: latest
   notify: enable haproxy
+  tags: packages
 
 - name: Deploy haproxy config
   template:
     src: haproxy.cfg.j2 
     dest: /etc/haproxy/haproxy.cfg
   notify: restart haproxy
+  tags: configuration
